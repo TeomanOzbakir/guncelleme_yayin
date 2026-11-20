@@ -13,7 +13,7 @@ exit /b
 #  ve oyunu acmadan once cift tikla. Kendi ayarlarina (tuslar, gorus mesafesi,
 #  harita, dunyalar) dokunmaz. Her guncellemeden once kubejs ve config yedeklenir.
 # ---------------------------------------------------------------------------
-$DEPO = 'BURAYA_KULLANICI/modpack-guncelleme'   # GitHub: kullanici-adi/depo-adi
+$DEPO = 'TeomanOzbakir/guncelleme_yayin'   # GitHub: kullanici-adi/depo-adi
 $ek = '?t=' + [DateTime]::UtcNow.Ticks   # GitHub onbellegine takilmamak icin
 $SURUM_URL = "https://raw.githubusercontent.com/$DEPO/main/surum.txt$ek"
 $PAKET_URL = "https://raw.githubusercontent.com/$DEPO/main/guncelleme.zip$ek"
