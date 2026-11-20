@@ -13,8 +13,10 @@ exit /b
 #  ve oyunu acmadan once cift tikla. Kendi ayarlarina (tuslar, gorus mesafesi,
 #  harita, dunyalar) dokunmaz. Her guncellemeden once kubejs ve config yedeklenir.
 # ---------------------------------------------------------------------------
-$SURUM_URL = 'BURAYA_SURUM_BAGLANTISI'
-$PAKET_URL = 'BURAYA_PAKET_BAGLANTISI'
+$DEPO = 'BURAYA_KULLANICI/modpack-guncelleme'   # GitHub: kullanici-adi/depo-adi
+$ek = '?t=' + [DateTime]::UtcNow.Ticks   # GitHub onbellegine takilmamak icin
+$SURUM_URL = "https://raw.githubusercontent.com/$DEPO/main/surum.txt$ek"
+$PAKET_URL = "https://raw.githubusercontent.com/$DEPO/main/guncelleme.zip$ek"
 
 $ErrorActionPreference = 'Stop'
 try {
@@ -24,7 +26,7 @@ try {
   if (-not (Test-Path -LiteralPath (Join-Path $kok 'mods')) -or -not (Test-Path -LiteralPath (Join-Path $kok 'config'))) {
     throw 'Bu dosyayi CurseForge profil klasorune koy (icinde mods ve config olan klasor). CurseForge: profil > sag tik > Open Folder.'
   }
-  if ($SURUM_URL -like 'BURAYA*') { throw 'Indirme baglantilari henuz ayarlanmamis.' }
+  if ($DEPO -like 'BURAYA*') { throw 'Indirme baglantilari henuz ayarlanmamis.' }
   $acik = @()
   try { $acik = @(Get-CimInstance Win32_Process -Filter "Name='javaw.exe' OR Name='java.exe'" | Where-Object { $_.CommandLine -and $_.CommandLine.Contains($kok) }) } catch { }
   if ($acik.Count -gt 0) {
