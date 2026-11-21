@@ -14,13 +14,19 @@ exit /b
 #  harita, dunyalar) dokunmaz. Her guncellemeden once kubejs ve config yedeklenir.
 # ---------------------------------------------------------------------------
 $DEPO = 'TeomanOzbakir/guncelleme_yayin'   # GitHub: kullanici-adi/depo-adi
-$ek = '?t=' + [DateTime]::UtcNow.Ticks   # GitHub onbellegine takilmamak icin
-$SURUM_URL = "https://raw.githubusercontent.com/$DEPO/main/surum.txt$ek"
-$PAKET_URL = "https://raw.githubusercontent.com/$DEPO/main/guncelleme.zip$ek"
 
 $ErrorActionPreference = 'Stop'
 try {
   [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+  # raw.githubusercontent.com 'main' adresini ~5 dk onbellekte tutuyor (?t= ise yaramiyor).
+  # Bu yuzden once en son commit'in kimligi alinir ve dosyalar o commit'in sabit adresinden indirilir.
+  $REF = 'main'
+  try {
+    $c = Invoke-RestMethod -Uri "https://api.github.com/repos/$DEPO/commits/main" -Headers @{ 'User-Agent' = 'modpack-guncelleyici' } -UseBasicParsing
+    if ($c.sha -match '^[0-9a-f]{40}$') { $REF = $c.sha }
+  } catch { Write-Host '(GitHub API yanit vermedi, onbellekli adres kullaniliyor)' -ForegroundColor DarkGray }
+  $SURUM_URL = "https://raw.githubusercontent.com/$DEPO/$REF/surum.txt"
+  $PAKET_URL = "https://raw.githubusercontent.com/$DEPO/$REF/guncelleme.zip"
   $kok = Split-Path -Parent $env:BAT_YOLU
   Write-Host '=== Silah Uretim Modpack guncelleyici ===' -ForegroundColor Cyan
   if (-not (Test-Path -LiteralPath (Join-Path $kok 'mods')) -or -not (Test-Path -LiteralPath (Join-Path $kok 'config'))) {
@@ -94,6 +100,13 @@ try {
   Set-Content -LiteralPath $yerelDosya -Value "$uzak"
   Write-Host "Guncelleme tamam! ($adet dosya)" -ForegroundColor Green
   Get-Content -LiteralPath "$ac\degisiklikler.txt" -Encoding UTF8 | ForEach-Object { Write-Host "  $_" }
+  # Guncelleyicinin kendisi: paketteki yeni guncelle.bat eskisinin yerine gecer.
+  # (Ilk 8 satir hep ayni kalmali: cmd dosyayi kaldigi yerden okumaya devam eder.)
+  $yeniBat = "$ac\guncelle.bat"
+  if ((Test-Path -LiteralPath $yeniBat) -and ((Get-FileHash -LiteralPath $yeniBat).Hash -ne (Get-FileHash -LiteralPath $env:BAT_YOLU).Hash)) {
+    Copy-Item -LiteralPath $yeniBat -Destination $env:BAT_YOLU -Force
+    Write-Host '  guncelleyici de yenilendi.'
+  }
   Remove-Item -LiteralPath $tmp -Recurse -Force
 } catch {
   Write-Host ('HATA: ' + $_.Exception.Message) -ForegroundColor Red
