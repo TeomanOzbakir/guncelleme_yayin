@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-title Silah Uretim Modpack - Guncelleme
+title Create: Blood, Sweat ^& Oil - Guncelleme
 set "BAT_YOLU=%~f0"
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$s=[IO.File]::ReadAllText($env:BAT_YOLU,[Text.Encoding]::UTF8); iex $s.Substring($s.IndexOf('#PS'+'BASLA#'))"
 echo.
@@ -8,7 +8,7 @@ pause
 exit /b
 #PSBASLA#
 # ---------------------------------------------------------------------------
-#  Silah Uretim Modpack guncelleyici
+#  Create: Blood, Sweat & Oil guncelleyici
 #  Bu dosyayi CurseForge profil klasorune koy (profil > sag tik > Open Folder)
 #  ve oyunu acmadan once cift tikla. Kendi ayarlarina (tuslar, gorus mesafesi,
 #  harita, dunyalar) dokunmaz. Her guncellemeden once kubejs ve config yedeklenir.
@@ -28,7 +28,7 @@ try {
   $SURUM_URL = "https://raw.githubusercontent.com/$DEPO/$REF/surum.txt"
   $PAKET_URL = "https://raw.githubusercontent.com/$DEPO/$REF/guncelleme.zip"
   $kok = Split-Path -Parent $env:BAT_YOLU
-  Write-Host '=== Silah Uretim Modpack guncelleyici ===' -ForegroundColor Cyan
+  Write-Host '=== Create: Blood, Sweat & Oil guncelleyici ===' -ForegroundColor Cyan
   if (-not (Test-Path -LiteralPath (Join-Path $kok 'mods')) -or -not (Test-Path -LiteralPath (Join-Path $kok 'config'))) {
     throw 'Bu dosyayi CurseForge profil klasorune koy (icinde mods ve config olan klasor). CurseForge: profil > sag tik > Open Folder.'
   }
