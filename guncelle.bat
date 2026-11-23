@@ -94,7 +94,7 @@ try {
   if (Test-Path -LiteralPath "$ac\mods_sil.txt") {
     Get-Content -LiteralPath "$ac\mods_sil.txt" -Encoding UTF8 | Where-Object { $_.Trim() } | ForEach-Object {
       $desen = $_.Trim()
-      Get-ChildItem -LiteralPath (Join-Path $kok 'mods') -File | Where-Object { $_.Name -like $desen } | ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force; Write-Host "  mod silindi: $($_.Name)" }
+      Get-ChildItem -LiteralPath (Join-Path $kok 'mods') -File | Where-Object { $_.Name -like $desen -and -not (Test-Path -LiteralPath (Join-Path "$ac\mods" $_.Name)) } | ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force; Write-Host "  mod silindi: $($_.Name)" }
     }
   }
   Set-Content -LiteralPath $yerelDosya -Value "$uzak"
