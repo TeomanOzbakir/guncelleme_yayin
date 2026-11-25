@@ -39,6 +39,27 @@ try {
     Write-Host 'Bu profilin oyunu acik. Once oyunu tamamen kapat, sonra tekrar calistir.' -ForegroundColor Yellow
     return
   }
+  # Java çöp toplayıcı (2026-11-25): G1 ile sık çökme görüldü -> profilin Java argümanı boşsa ZGC yazılır.
+  # Kendi GC ayarını yazmış olana dokunulmaz. CurseForge açıksa yeniden başlatınca görünür.
+  try {
+    $inst = Join-Path $kok 'minecraftinstance.json'
+    if (Test-Path -LiteralPath $inst) {
+      $ham = [IO.File]::ReadAllText($inst)
+      $m = [regex]::Match($ham, '"javaArgsOverride"\s*:\s*(null|"((?:[^"\\]|\\.)*)")')
+      if ($m.Success) {
+        $deger = $m.Groups[2].Value
+        if ($deger -match 'UseZGC') { }
+        elseif ($deger -match 'Use(G1|Parallel|Serial|Shenandoah)GC') { Write-Host '(Java argumaninda baska bir GC ayari var, ZGC eklenmedi.)' -ForegroundColor DarkGray }
+        else {
+          $yeniArg = ($deger + ' -XX:+UseZGC -XX:+ZGenerational').Trim()
+          $ham = $ham.Substring(0, $m.Index) + '"javaArgsOverride":"' + $yeniArg + '"' + $ham.Substring($m.Index + $m.Length)
+          [IO.File]::WriteAllText($inst, $ham, (New-Object Text.UTF8Encoding($false)))
+          Write-Host 'Java ayari: ZGC acildi (cokmeleri azaltir). CurseForge aciksa kapatip ac.' -ForegroundColor Green
+        }
+      }
+    }
+  } catch { Write-Host ('(ZGC ayari yapilamadi: ' + $_.Exception.Message + ')') -ForegroundColor DarkGray }
+
   $yerelDosya = Join-Path $kok '.guncelleme_surum'
   $yerel = 0
   if (Test-Path -LiteralPath $yerelDosya) { $yerel = [int]((Get-Content -LiteralPath $yerelDosya -Raw).Trim()) }
