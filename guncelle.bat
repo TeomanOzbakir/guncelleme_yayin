@@ -60,6 +60,22 @@ try {
     }
   } catch { Write-Host ('(ZGC ayari yapilamadi: ' + $_.Exception.Message + ')') -ForegroundColor DarkGray }
 
+  # Oyun dili (2026-11-27): Turkce yama geldi -> oyun dili BIR KEZ Turkce yapilir. Sonra Ingilizceye
+  # donen oyuncuya bir daha dokunulmaz (.dil_tr isareti).
+  try {
+    $dilIsaret = Join-Path $kok '.dil_tr'
+    $opt = Join-Path $kok 'options.txt'
+    if (-not (Test-Path -LiteralPath $dilIsaret) -and (Test-Path -LiteralPath $opt)) {
+      $satirlar = [IO.File]::ReadAllLines($opt)
+      $bulundu = $false
+      for ($i = 0; $i -lt $satirlar.Length; $i++) { if ($satirlar[$i] -like 'lang:*') { $satirlar[$i] = 'lang:tr_tr'; $bulundu = $true } }
+      if (-not $bulundu) { $satirlar += 'lang:tr_tr' }
+      [IO.File]::WriteAllLines($opt, $satirlar, (New-Object Text.UTF8Encoding($false)))
+      Set-Content -LiteralPath $dilIsaret -Value '1'
+      Write-Host 'Oyun dili Turkce yapildi (Ayarlar > Dil ile degistirebilirsin).' -ForegroundColor Green
+    }
+  } catch { Write-Host ('(Dil ayari yapilamadi: ' + $_.Exception.Message + ')') -ForegroundColor DarkGray }
+
   $yerelDosya = Join-Path $kok '.guncelleme_surum'
   $yerel = 0
   if (Test-Path -LiteralPath $yerelDosya) { $yerel = [int]((Get-Content -LiteralPath $yerelDosya -Raw).Trim()) }
